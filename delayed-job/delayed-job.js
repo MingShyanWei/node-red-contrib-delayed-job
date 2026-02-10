@@ -1,5 +1,6 @@
 module.exports = function (RED) {
   const { Queue, Worker } = require('bullmq');
+  const crypto = require('crypto');
 
   function DelayedJobNode(config) {
     RED.nodes.createNode(this, config);
@@ -28,6 +29,10 @@ module.exports = function (RED) {
     let queue = null;
     let worker = null;
     let closing = false;
+    let statusTimer = null;
+    let fetchTimer = null;
+    let lastProcessedAt = 0;
+    const workerToken = crypto.randomUUID();
 
     // --- Serialization helpers ---
 
@@ -55,72 +60,162 @@ module.exports = function (RED) {
       return obj;
     }
 
-    // --- Initialize Queue (Producer) ---
+    // --- Job processor (shared between both modes) ---
 
-    try {
-      queue = new Queue(node.queueName, {
-        connection: connectionOpts,
-        defaultJobOptions: {
-          removeOnComplete: false,
-          removeOnFail: false,
-        },
-      });
-    } catch (err) {
-      node.error('Failed to create queue: ' + err.message);
-      node.status({ fill: 'red', shape: 'ring', text: 'queue init fail' });
-      return;
+    function processJob(job) {
+      const ttlMs = job.data._ttl;
+      if (ttlMs && Date.now() - job.timestamp > ttlMs) {
+        node.warn('Job ' + job.id + ' expired (TTL ' + (ttlMs / 1000) + 's)');
+        return;
+      }
+      const msg = deserializeMsg(job.data);
+      delete msg._ttl;
+      lastProcessedAt = Date.now();
+      node.send(msg);
     }
 
-    // --- Initialize Worker (Consumer) ---
+    // --- Initialize Queue & Worker ---
 
-    try {
-      worker = new Worker(
-        node.queueName,
-        async (job) => {
-          if (closing) return;
-          const ttlMs = job.data._ttl;
-          if (ttlMs && Date.now() - job.timestamp > ttlMs) {
-            node.warn('Job ' + job.id + ' expired (TTL ' + (ttlMs / 1000) + 's)');
-            return;
-          }
-          const msg = deserializeMsg(job.data);
-          delete msg._ttl;
-          node.send(msg);
-        },
-        {
+    (async function init() {
+      try {
+        queue = new Queue(node.queueName, {
           connection: connectionOpts,
-          concurrency: node.concurrency,
-          stalledInterval: 30000,
-          maxStalledCount: 2,
-          ...(intervalMs > 0 ? { limiter: { max: node.concurrency, duration: intervalMs } } : {}),
-        }
-      );
-
-      worker.on('ready', () => {
-        node.status({ fill: 'green', shape: 'dot', text: 'ready' });
-      });
-
-      worker.on('failed', (job, err) => {
-        node.warn('Job ' + (job ? job.id : '?') + ' failed: ' + err.message);
-      });
-
-      worker.on('error', (err) => {
-        node.error('Worker error: ' + err.message);
-        node.status({
-          fill: 'red',
-          shape: 'ring',
-          text: err.message.substring(0, 30),
+          defaultJobOptions: {
+            removeOnComplete: false,
+            removeOnFail: false,
+          },
         });
-      });
+      } catch (err) {
+        node.error('Failed to create queue: ' + err.message);
+        node.status({ fill: 'red', shape: 'ring', text: 'queue init fail' });
+        return;
+      }
 
-      worker.on('stalled', (jobId) => {
-        node.warn('Job stalled: ' + jobId);
-      });
-    } catch (err) {
-      node.error('Failed to create worker: ' + err.message);
-      node.status({ fill: 'red', shape: 'ring', text: 'worker init fail' });
-      return;
-    }
+      try {
+        if (intervalMs > 0) {
+          // --- Manual mode: per-worker rate limiting ---
+          worker = new Worker(node.queueName, null, {
+            connection: connectionOpts,
+            autorun: false,
+            lockDuration: 30000,
+            stalledInterval: 30000,
+            maxStalledCount: 2,
+          });
+
+          worker.on('error', (err) => {
+            node.error('Worker error: ' + err.message);
+            node.status({
+              fill: 'red',
+              shape: 'ring',
+              text: err.message.substring(0, 30),
+            });
+          });
+
+          // Start stalled job checker for crash recovery
+          worker.startStalledCheckTimer();
+
+          node.status({ fill: 'green', shape: 'dot', text: 'ready' });
+
+          // Fetch jobs on interval
+          fetchTimer = setInterval(async () => {
+            if (closing) return;
+            try {
+              for (let i = 0; i < node.concurrency; i++) {
+                if (closing) break;
+                const job = await worker.getNextJob(workerToken, { block: false });
+                if (!job) break; // no more jobs available
+                try {
+                  processJob(job);
+                  await job.moveToCompleted(undefined, workerToken, false);
+                } catch (err) {
+                  node.error('Job ' + job.id + ' failed: ' + err.message);
+                  await job.moveToFailed(err, workerToken, false);
+                }
+              }
+            } catch (err) {
+              if (!closing) {
+                node.error('Error fetching jobs: ' + err.message);
+              }
+            }
+          }, intervalMs);
+
+        } else {
+          // --- Automatic mode: immediate processing ---
+          worker = new Worker(
+            node.queueName,
+            async (job) => {
+              if (closing) return;
+              processJob(job);
+            },
+            {
+              connection: connectionOpts,
+              concurrency: node.concurrency,
+              stalledInterval: 30000,
+              maxStalledCount: 2,
+            }
+          );
+
+          worker.on('ready', () => {
+            node.status({ fill: 'green', shape: 'dot', text: 'ready' });
+          });
+
+          worker.on('failed', (job, err) => {
+            node.warn('Job ' + (job ? job.id : '?') + ' failed: ' + err.message);
+          });
+
+          worker.on('error', (err) => {
+            node.error('Worker error: ' + err.message);
+            node.status({
+              fill: 'red',
+              shape: 'ring',
+              text: err.message.substring(0, 30),
+            });
+          });
+
+          worker.on('stalled', (jobId) => {
+            node.warn('Job stalled: ' + jobId);
+          });
+        }
+      } catch (err) {
+        node.error('Failed to create worker: ' + err.message);
+        node.status({ fill: 'red', shape: 'ring', text: 'worker init fail' });
+        return;
+      }
+
+      // --- Status update timer ---
+      async function updateStatus() {
+        if (closing || !queue) return;
+        try {
+          const counts = await queue.getJobCounts('waiting', 'delayed', 'active');
+          const waiting = (counts.waiting || 0) + (counts.delayed || 0);
+          const active = counts.active || 0;
+          const total = waiting + active;
+
+          if (total === 0) {
+            node.status({ fill: 'green', shape: 'dot', text: 'idle' });
+          } else if (intervalMs > 0 && lastProcessedAt > 0) {
+            const elapsed = Date.now() - lastProcessedAt;
+            const remaining = Math.max(0, intervalMs - elapsed);
+            const remainSec = Math.ceil(remaining / 1000);
+            if (remaining > 0 && waiting > 0) {
+              node.status({ fill: 'blue', shape: 'dot', text: waiting + ' waiting | next: ' + remainSec + 's' });
+            } else {
+              const parts = [];
+              if (active > 0) parts.push(active + ' active');
+              if (waiting > 0) parts.push(waiting + ' waiting');
+              node.status({ fill: 'blue', shape: 'dot', text: parts.join(' | ') });
+            }
+          } else {
+            const parts = [];
+            if (active > 0) parts.push(active + ' active');
+            if (waiting > 0) parts.push(waiting + ' waiting');
+            node.status({ fill: 'blue', shape: 'dot', text: parts.join(' | ') });
+          }
+        } catch (_) { /* ignore status errors */ }
+      }
+
+      statusTimer = setInterval(updateStatus, 1000);
+    })();
 
     // --- Input Handler (Producer) ---
 
@@ -169,6 +264,14 @@ module.exports = function (RED) {
 
     node.on('close', async function (removed, done) {
       closing = true;
+      if (fetchTimer) {
+        clearInterval(fetchTimer);
+        fetchTimer = null;
+      }
+      if (statusTimer) {
+        clearInterval(statusTimer);
+        statusTimer = null;
+      }
       node.status({ fill: 'yellow', shape: 'ring', text: 'closing...' });
 
       try {
