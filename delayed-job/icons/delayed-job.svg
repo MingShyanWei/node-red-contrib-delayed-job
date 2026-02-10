@@ -1,14 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
-  <!-- Clock face -->
-  <circle cx="18" cy="20" r="12" fill="none" stroke="#ffffff" stroke-width="2"/>
-  <!-- Clock hands - hour -->
-  <line x1="18" y1="20" x2="18" y2="13" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
-  <!-- Clock hands - minute -->
-  <line x1="18" y1="20" x2="23" y2="17" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
-  <!-- Clock center dot -->
-  <circle cx="18" cy="20" r="1.2" fill="#ffffff"/>
-  <!-- Queue lines (right side) -->
-  <line x1="32" y1="15" x2="38" y2="15" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
-  <line x1="32" y1="20" x2="38" y2="20" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
-  <line x1="32" y1="25" x2="38" y2="25" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+  <!-- Left: single input node -->
+  <circle cx="5" cy="20" r="3.5" fill="#ffffff" opacity="0.9"/>
+  <!-- Arrow from left to center -->
+  <line x1="9" y1="20" x2="15" y2="20" stroke="#ffffff" stroke-width="1.5" opacity="0.7"/>
+  <polygon points="15,17.5 19,20 15,22.5" fill="#ffffff" opacity="0.7"/>
+  <!-- Center: queue block -->
+  <rect x="19" y="14" width="6" height="12" rx="1.5" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.9"/>
+  <line x1="20.5" y1="18" x2="23.5" y2="18" stroke="#ffffff" stroke-width="1" opacity="0.6"/>
+  <line x1="20.5" y1="21" x2="23.5" y2="21" stroke="#ffffff" stroke-width="1" opacity="0.6"/>
+  <!-- Arrow from center to right-top -->
+  <line x1="25" y1="17" x2="30" y2="10" stroke="#ffffff" stroke-width="1.2" opacity="0.6"/>
+  <!-- Arrow from center to right-mid -->
+  <line x1="25" y1="20" x2="30" y2="20" stroke="#ffffff" stroke-width="1.2" opacity="0.6"/>
+  <!-- Arrow from center to right-bottom -->
+  <line x1="25" y1="23" x2="30" y2="30" stroke="#ffffff" stroke-width="1.2" opacity="0.6"/>
+  <!-- Right: distributed worker nodes -->
+  <circle cx="33" cy="8" r="3" fill="#ffffff" opacity="0.7"/>
+  <circle cx="33" cy="20" r="3" fill="#ffffff" opacity="0.7"/>
+  <circle cx="33" cy="32" r="3" fill="#ffffff" opacity="0.7"/>
 </svg>

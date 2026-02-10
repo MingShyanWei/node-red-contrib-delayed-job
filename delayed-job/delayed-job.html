@@ -1,7 +1,7 @@
 <script type="text/javascript">
   RED.nodes.registerType('delayed-job', {
     category: 'function',
-    color: '#E67E22',
+    color: '#D63384',
     defaults: {
       name: { value: '' },
       redis: { value: '', type: 'delayed-job-redis', required: true },
@@ -14,7 +14,7 @@
     icon: 'delayed-job.svg',
     paletteLabel: 'delayed job',
     label: function () {
-      return this.name || 'delayed job';
+      return this.name || '';
     },
     labelStyle: function () {
       return this.name ? 'node_label_italic' : '';
