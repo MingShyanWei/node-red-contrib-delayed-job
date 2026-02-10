@@ -1,6 +1,6 @@
 {
-  "name": "@blokcert/node-red-delayed-job",
-  "version": "0.1.0",
+  "name": "@blokcert/node-red-contrib-delayed-job",
+  "version": "0.1.1",
   "description": "A Node-RED node for Redis-backed delayed job queues using BullMQ",
   "keywords": ["node-red"],
   "author": "caspar.wei",
