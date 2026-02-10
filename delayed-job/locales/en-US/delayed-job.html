@@ -7,8 +7,8 @@
   <ul>
     <li><code>msg.delay</code> - Delay in milliseconds before the job is processed</li>
     <li><code>msg.priority</code> - Job priority (lower number = higher priority)</li>
-    <li><code>msg.ttl</code> - Time-to-live in seconds. If the job is not processed within this time, it will be discarded. Default: no limit</li>
-    <li><code>msg.keepAfter</code> - Keep the job in Redis for this many seconds after completion. Default: keep forever</li>
+    <li><code>msg.ttl</code> - Time-to-live in seconds. If the job is not processed within this time, it will be discarded. Default: 7 days (604800s)</li>
+    <li><code>msg.keepAfter</code> - Keep the job in Redis for this many seconds after completion. Default: 7 days (604800s)</li>
   </ul>
 
   <h3>Output</h3>

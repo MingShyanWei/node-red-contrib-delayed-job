@@ -49,8 +49,8 @@ The main node. Drag it into your flow, configure the Redis connection, and wire 
 |---|---|---|
 | `msg.delay` | number | Delay in milliseconds before the job is processed |
 | `msg.priority` | number | Job priority (lower = higher priority) |
-| `msg.ttl` | number | Time-to-live in seconds. Expired jobs are discarded. Default: no limit |
-| `msg.keepAfter` | number | Keep job in Redis for N seconds after completion. Default: keep forever |
+| `msg.ttl` | number | Time-to-live in seconds. Expired jobs are discarded. Default: 7 days |
+| `msg.keepAfter` | number | Keep job in Redis for N seconds after completion. Default: 7 days |
 
 ### delayed-job-redis (Config Node)
 
@@ -83,7 +83,7 @@ Each node instance gets a unique queue: `{queueName}-{nodeId}`. To share a queue
 
 ### Crash Recovery
 
-Jobs are stored in Redis with `removeOnComplete: false` by default. If Node-RED crashes or restarts, the worker will pick up any remaining jobs automatically.
+Jobs are stored in Redis and retained for 7 days after completion by default. If Node-RED crashes or restarts, the worker will pick up any remaining jobs automatically.
 
 ### Limitations
 

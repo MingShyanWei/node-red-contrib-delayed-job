@@ -7,8 +7,8 @@
   <ul>
     <li><code>msg.delay</code> - 延遲毫秒數，工作將在指定時間後才被處理</li>
     <li><code>msg.priority</code> - 工作優先級（數字越小，優先級越高）</li>
-    <li><code>msg.ttl</code> - 存活時間（秒）。若工作在此時間內未被處理，將被丟棄。預設：不限制</li>
-    <li><code>msg.keepAfter</code> - 工作完成後在 Redis 中保留的秒數。預設：永久保留</li>
+    <li><code>msg.ttl</code> - 存活時間（秒）。若工作在此時間內未被處理，將被丟棄。預設：7 天（604800 秒）</li>
+    <li><code>msg.keepAfter</code> - 工作完成後在 Redis 中保留的秒數。預設：7 天（604800 秒）</li>
   </ul>
 
   <h3>輸出</h3>
