@@ -81,8 +81,8 @@ module.exports = function (RED) {
         queue = new Queue(node.queueName, {
           connection: connectionOpts,
           defaultJobOptions: {
-            removeOnComplete: false,
-            removeOnFail: false,
+            removeOnComplete: { age: 604800 },
+            removeOnFail: { age: 604800 },
           },
         });
       } catch (err) {
@@ -228,11 +228,9 @@ module.exports = function (RED) {
       }
 
       try {
-        const ttlSec = parseInt(msg.ttl, 10) || 0;
+        const ttlSec = parseInt(msg.ttl, 10) || 604800; // default 7 days
         const serialized = serializeMsg(msg);
-        if (ttlSec > 0) {
-          serialized._ttl = ttlSec * 1000;
-        }
+        serialized._ttl = ttlSec * 1000;
         const jobName = 'job';
         const jobOpts = {};
 
