@@ -1,0 +1,13 @@
+{
+  "delayed-job-redis": {
+    "label": {
+      "name": "Name",
+      "host": "Host",
+      "port": "Port",
+      "password": "Password",
+      "db": "DB",
+      "tls": "TLS",
+      "queueName": "Queue Name"
+    }
+  }
+}

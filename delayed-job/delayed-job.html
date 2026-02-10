@@ -1,0 +1,48 @@
+<script type="text/javascript">
+  RED.nodes.registerType('delayed-job', {
+    category: 'function',
+    color: '#E67E22',
+    defaults: {
+      name: { value: '' },
+      redis: { value: '', type: 'delayed-job-redis', required: true },
+      concurrency: { value: 1, validate: RED.validators.number() },
+      intervalValue: { value: 0, validate: RED.validators.number() },
+      intervalUnit: { value: 'ms' },
+    },
+    inputs: 1,
+    outputs: 1,
+    icon: 'delayed-job.svg',
+    paletteLabel: 'delayed job',
+    label: function () {
+      return this.name || 'delayed job';
+    },
+    labelStyle: function () {
+      return this.name ? 'node_label_italic' : '';
+    },
+  });
+</script>
+
+<script type="text/html" data-template-name="delayed-job">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="delayed-job.label.name"></span></label>
+    <input type="text" id="node-input-name" data-i18n="[placeholder]delayed-job.label.name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-redis"><i class="fa fa-server"></i> <span data-i18n="delayed-job.label.redis"></span></label>
+    <input type="text" id="node-input-redis">
+  </div>
+  <div class="form-row">
+    <label for="node-input-concurrency"><i class="fa fa-tasks"></i> <span data-i18n="delayed-job.label.concurrency"></span></label>
+    <input type="number" id="node-input-concurrency" min="1" max="100" placeholder="1">
+  </div>
+  <div class="form-row">
+    <label for="node-input-intervalValue"><i class="fa fa-clock-o"></i> <span data-i18n="delayed-job.label.interval"></span></label>
+    <input type="number" id="node-input-intervalValue" min="0" placeholder="0" style="width: 100px">
+    <select id="node-input-intervalUnit" style="width: 80px">
+      <option value="ms" data-i18n="delayed-job.interval.milliseconds"></option>
+      <option value="s" data-i18n="delayed-job.interval.seconds"></option>
+      <option value="m" data-i18n="delayed-job.interval.minutes"></option>
+      <option value="h" data-i18n="delayed-job.interval.hours"></option>
+    </select>
+  </div>
+</script>

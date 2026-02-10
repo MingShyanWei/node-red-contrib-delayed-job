@@ -1,0 +1,34 @@
+{
+  "name": "@blokcert/node-red-delayed-job",
+  "version": "0.1.0",
+  "description": "A Node-RED node for Redis-backed delayed job queues using BullMQ",
+  "keywords": ["node-red"],
+  "author": "caspar.wei",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MingShyanWei/node-red-contrib-delayed-job.git"
+  },
+  "node-red": {
+    "version": ">=2.0.0",
+    "nodes": {
+      "delayed-job-redis": "delayed-job/delayed-job-redis.js",
+      "delayed-job": "delayed-job/delayed-job.js"
+    }
+  },
+  "dependencies": {
+    "bullmq": "^5.0.0"
+  },
+  "devDependencies": {
+    "node-red": ">=3.0.0",
+    "node-red-node-test-helper": "^0.3.0",
+    "mocha": "^10.0.0",
+    "chai": "^4.3.0"
+  },
+  "scripts": {
+    "test": "mocha --timeout 10000 test/**/*_spec.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT"
+}

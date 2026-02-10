@@ -1,0 +1,16 @@
+{
+  "delayed-job": {
+    "label": {
+      "name": "名稱",
+      "redis": "Redis",
+      "concurrency": "同時處理數",
+      "interval": "間隔"
+    },
+    "interval": {
+      "milliseconds": "毫秒",
+      "seconds": "秒",
+      "minutes": "分鐘",
+      "hours": "小時"
+    }
+  }
+}

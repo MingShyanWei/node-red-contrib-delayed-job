@@ -1,0 +1,50 @@
+<script type="text/javascript">
+  RED.nodes.registerType('delayed-job-redis', {
+    category: 'config',
+    defaults: {
+      name: { value: '' },
+      host: { value: '127.0.0.1', required: true },
+      port: { value: 6379, required: true, validate: RED.validators.number() },
+      db: { value: 0, validate: RED.validators.number() },
+      tls: { value: false },
+      queueName: { value: 'default' },
+    },
+    credentials: {
+      password: { type: 'password' },
+    },
+    label: function () {
+      return this.name || this.host + ':' + this.port + '/' + (this.queueName || 'default');
+    },
+  });
+</script>
+
+<script type="text/html" data-template-name="delayed-job-redis">
+  <div class="form-row">
+    <label for="node-config-input-name"><i class="fa fa-tag"></i> <span data-i18n="delayed-job-redis.label.name"></span></label>
+    <input type="text" id="node-config-input-name" data-i18n="[placeholder]delayed-job-redis.label.name">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-host"><i class="fa fa-server"></i> <span data-i18n="delayed-job-redis.label.host"></span></label>
+    <input type="text" id="node-config-input-host" placeholder="127.0.0.1">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-port"><i class="fa fa-plug"></i> <span data-i18n="delayed-job-redis.label.port"></span></label>
+    <input type="number" id="node-config-input-port" placeholder="6379">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-password"><i class="fa fa-lock"></i> <span data-i18n="delayed-job-redis.label.password"></span></label>
+    <input type="password" id="node-config-input-password">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-db"><i class="fa fa-database"></i> <span data-i18n="delayed-job-redis.label.db"></span></label>
+    <input type="number" id="node-config-input-db" placeholder="0">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-tls"><i class="fa fa-shield"></i> <span data-i18n="delayed-job-redis.label.tls"></span></label>
+    <input type="checkbox" id="node-config-input-tls" style="width: auto">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-queueName"><i class="fa fa-list"></i> <span data-i18n="delayed-job-redis.label.queueName"></span></label>
+    <input type="text" id="node-config-input-queueName" placeholder="default">
+  </div>
+</script>

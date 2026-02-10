@@ -1,0 +1,16 @@
+{
+  "delayed-job": {
+    "label": {
+      "name": "Name",
+      "redis": "Redis",
+      "concurrency": "Concurrency",
+      "interval": "Interval"
+    },
+    "interval": {
+      "milliseconds": "ms",
+      "seconds": "seconds",
+      "minutes": "minutes",
+      "hours": "hours"
+    }
+  }
+}

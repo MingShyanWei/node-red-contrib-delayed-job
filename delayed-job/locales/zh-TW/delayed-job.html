@@ -1,0 +1,48 @@
+<script type="text/html" data-help-name="delayed-job">
+  <p>使用 BullMQ 的 Redis 佇列節點，同時扮演生產者和消費者。</p>
+
+  <h3>輸入</h3>
+  <p>收到的訊息會被序列化後加入 Redis 佇列。
+     以下 <code>msg</code> 屬性可控制工作行為：</p>
+  <ul>
+    <li><code>msg.delay</code> - 延遲毫秒數，工作將在指定時間後才被處理</li>
+    <li><code>msg.priority</code> - 工作優先級（數字越小，優先級越高）</li>
+    <li><code>msg.ttl</code> - 存活時間（秒）。若工作在此時間內未被處理，將被丟棄。預設：不限制</li>
+    <li><code>msg.keepAfter</code> - 工作完成後在 Redis 中保留的秒數。預設：永久保留</li>
+  </ul>
+
+  <h3>輸出</h3>
+  <p>當工作被 worker 取出處理時，反序列化後的訊息會從輸出端送出。
+     Node-RED 會指派新的 <code>_msgid</code>。</p>
+
+  <h3>詳細說明</h3>
+  <p>此節點同時扮演生產者和消費者：</p>
+  <ul>
+    <li><b>收到輸入時</b>：訊息被序列化後放入 Redis 佇列</li>
+    <li><b>背景 worker</b>：從佇列取出工作並送到輸出端（受間隔設定的速率限制）</li>
+  </ul>
+
+  <p>多個 Node-RED 實體共用相同的 Redis 伺服器和佇列名稱，
+     可組成分散式工作池。任何實體都可以處理任何工作。</p>
+
+  <h3>故障恢復</h3>
+  <p>工作持久化儲存在 Redis 中。如果 Node-RED 當機，工作會留在佇列中，
+     當任何實體重新啟動時會被取出處理。</p>
+
+  <h3>限制</h3>
+  <p>無法序列化的屬性（如 http-in 節點的 <code>msg.req</code> 和 <code>msg.res</code>）
+     無法通過佇列序列化，將會遺失。</p>
+</script>
+
+<script type="text/html" data-help-name="delayed-job-redis">
+  <p>delayed-job 節點使用的 Redis 伺服器連線設定。</p>
+  <h3>屬性</h3>
+  <ul>
+    <li><b>主機</b> - Redis 伺服器主機名稱（預設：127.0.0.1）</li>
+    <li><b>連接埠</b> - Redis 伺服器連接埠（預設：6379）</li>
+    <li><b>密碼</b> - Redis 認證密碼（選填，加密儲存）</li>
+    <li><b>資料庫</b> - Redis 資料庫索引（預設：0）</li>
+    <li><b>TLS</b> - 啟用 TLS/SSL 連線</li>
+    <li><b>佇列名稱</b> - 工作佇列名稱（預設：default）</li>
+  </ul>
+</script>

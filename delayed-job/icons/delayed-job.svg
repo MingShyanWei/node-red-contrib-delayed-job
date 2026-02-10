@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
+  <!-- Clock face -->
+  <circle cx="18" cy="20" r="12" fill="none" stroke="#ffffff" stroke-width="2"/>
+  <!-- Clock hands - hour -->
+  <line x1="18" y1="20" x2="18" y2="13" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+  <!-- Clock hands - minute -->
+  <line x1="18" y1="20" x2="23" y2="17" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Clock center dot -->
+  <circle cx="18" cy="20" r="1.2" fill="#ffffff"/>
+  <!-- Queue lines (right side) -->
+  <line x1="32" y1="15" x2="38" y2="15" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+  <line x1="32" y1="20" x2="38" y2="20" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+  <line x1="32" y1="25" x2="38" y2="25" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+</svg>

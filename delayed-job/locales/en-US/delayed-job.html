@@ -1,0 +1,48 @@
+<script type="text/html" data-help-name="delayed-job">
+  <p>A Redis-backed job queue node using BullMQ. Acts as both producer and consumer.</p>
+
+  <h3>Input</h3>
+  <p>Messages received on the input are serialized and added to the named Redis queue.
+     The following <code>msg</code> properties control job behavior:</p>
+  <ul>
+    <li><code>msg.delay</code> - Delay in milliseconds before the job is processed</li>
+    <li><code>msg.priority</code> - Job priority (lower number = higher priority)</li>
+    <li><code>msg.ttl</code> - Time-to-live in seconds. If the job is not processed within this time, it will be discarded. Default: no limit</li>
+    <li><code>msg.keepAfter</code> - Keep the job in Redis for this many seconds after completion. Default: keep forever</li>
+  </ul>
+
+  <h3>Output</h3>
+  <p>When a job is picked up by the worker, the deserialized message is sent from the output.
+     A new <code>_msgid</code> is assigned by Node-RED.</p>
+
+  <h3>Details</h3>
+  <p>This node acts as both producer and consumer:</p>
+  <ul>
+    <li><b>On input</b>: the message is serialized and queued in Redis</li>
+    <li><b>Background worker</b>: polls the queue and sends messages to the output (rate limited by Interval setting)</li>
+  </ul>
+
+  <p>Multiple Node-RED instances sharing the same Redis server and queue name
+     form a distributed worker pool. Any instance can process any job.</p>
+
+  <h3>Crash Recovery</h3>
+  <p>Jobs are persisted in Redis. If Node-RED crashes, jobs remain in the queue and
+     will be picked up when any instance restarts.</p>
+
+  <h3>Limitations</h3>
+  <p>Non-serializable properties like <code>msg.req</code> and <code>msg.res</code>
+     (from http-in nodes) cannot survive queue serialization and will be lost.</p>
+</script>
+
+<script type="text/html" data-help-name="delayed-job-redis">
+  <p>Configuration for a Redis server connection used by delayed-job nodes.</p>
+  <h3>Properties</h3>
+  <ul>
+    <li><b>Host</b> - Redis server hostname (default: 127.0.0.1)</li>
+    <li><b>Port</b> - Redis server port (default: 6379)</li>
+    <li><b>Password</b> - Redis authentication password (optional, stored encrypted)</li>
+    <li><b>DB</b> - Redis database index (default: 0)</li>
+    <li><b>TLS</b> - Enable TLS/SSL connection</li>
+    <li><b>Queue Name</b> - Name of the job queue (default: default)</li>
+  </ul>
+</script>
