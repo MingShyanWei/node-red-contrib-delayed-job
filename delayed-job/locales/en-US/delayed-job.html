@@ -10,10 +10,42 @@
     <li><code>msg.ttl</code> - Time-to-live in seconds. If the job is not processed within this time, it will be discarded. Default: 7 days (604800s)</li>
     <li><code>msg.keepAfter</code> - Keep the job in Redis for this many seconds after completion. Default: 7 days (604800s)</li>
   </ul>
+  <p>In <b>ACK Required</b> mode, the input also accepts acknowledgment messages:</p>
+  <ul>
+    <li><code>msg._jobId</code> - The job ID to acknowledge (from the output message)</li>
+    <li><code>msg._jobAck</code> - Set to <code>true</code> to mark as completed, <code>false</code> to mark as failed</li>
+    <li><code>msg._jobError</code> - (optional) Error reason when <code>_jobAck</code> is <code>false</code></li>
+  </ul>
 
-  <h3>Output</h3>
-  <p>When a job is picked up by the worker, the deserialized message is sent from the output.
-     A new <code>_msgid</code> is assigned by Node-RED.</p>
+  <h3>Outputs</h3>
+  <ul>
+    <li><b>Output 1</b> - When a job is picked up by the worker, the deserialized message is sent from this output.
+       A new <code>_msgid</code> is assigned by Node-RED.
+       In ACK mode, <code>msg._jobId</code> and <code>msg._jobAttempt</code> are included.</li>
+    <li><b>Output 2</b> - Fault output. In ACK Required mode, jobs that have exhausted all retry attempts
+       are sent here with <code>msg._jobFailed = true</code> and <code>msg._jobError</code>.</li>
+  </ul>
+
+  <h3>Completion Modes</h3>
+  <p>The node supports two completion modes:</p>
+  <ul>
+    <li><b>Auto Complete</b> (default): Jobs are automatically marked as completed after the message
+       is sent to the output. This is the standard behavior.</li>
+    <li><b>ACK Required</b>: Jobs remain active until an explicit acknowledgment is received
+       back through the input. If no ACK is received within the configured timeout,
+       the job is automatically retried. After the maximum number of retries is exhausted,
+       the job is sent to Output 2 (fault output).</li>
+  </ul>
+
+  <h3>ACK Required Mode</h3>
+  <p>To acknowledge a job, wire the output back to the input through a function node that sets:</p>
+  <pre>msg._jobAck = true;   // or false to fail
+return msg;            // msg._jobId is already set</pre>
+  <p>Configuration:</p>
+  <ul>
+    <li><b>ACK Timeout</b> - Time to wait for acknowledgment before retrying (default: 30 seconds)</li>
+    <li><b>Max Retries</b> - Number of retry attempts before marking as fault (default: 3)</li>
+  </ul>
 
   <h3>Details</h3>
   <p>This node acts as both producer and consumer:</p>
@@ -27,7 +59,8 @@
 
   <h3>Crash Recovery</h3>
   <p>Jobs are persisted in Redis. If Node-RED crashes, jobs remain in the queue and
-     will be picked up when any instance restarts.</p>
+     will be picked up when any instance restarts. In ACK mode, pending jobs whose
+     locks have expired will be automatically retried by the stalled job detector.</p>
 
   <h3>Limitations</h3>
   <p>Non-serializable properties like <code>msg.req</code> and <code>msg.res</code>

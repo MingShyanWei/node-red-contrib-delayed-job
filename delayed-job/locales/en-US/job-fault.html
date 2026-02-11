@@ -1,0 +1,17 @@
+<script type="text/html" data-help-name="job-fault">
+  <p>Marks a job as <b>failed</b> (fault) back to a delayed-job node running in ACK Required mode.</p>
+
+  <h3>Input</h3>
+  <p>A message from a delayed-job node's output (must contain <code>msg._jobId</code> and <code>msg._jobSourceNode</code>).</p>
+
+  <h3>Details</h3>
+  <p>This node communicates directly with the source delayed-job node. No wire back to the delayed-job input is needed.</p>
+  <pre>delayed-job (output 1) → [your processing] → job-fault</pre>
+  <p>When the job-fault node receives a message, it immediately marks the job as failed and sends it to the fault output (output 2) of the delayed-job node.</p>
+
+  <h3>Error Message</h3>
+  <p>You can configure a default error message in the node settings. You can also set <code>msg._jobError</code> dynamically to override the default error message.</p>
+
+  <h3>See Also</h3>
+  <p>Use the <b>job-complete</b> node to mark a job as completed.</p>
+</script>

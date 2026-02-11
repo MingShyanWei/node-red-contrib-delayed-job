@@ -8,9 +8,18 @@
       concurrency: { value: 1, validate: RED.validators.number() },
       intervalValue: { value: 0, validate: RED.validators.number() },
       intervalUnit: { value: 'ms' },
+      completionMode: { value: 'auto' },
+      ackTimeoutValue: { value: 30, validate: RED.validators.number() },
+      ackTimeoutUnit: { value: 's' },
+      ackMaxRetries: { value: 3, validate: RED.validators.number() },
+      verbose: { value: false },
     },
     inputs: 1,
-    outputs: 1,
+    outputs: 2,
+    outputLabels: function (index) {
+      if (index === 0) return this._('delayed-job.output.job') || 'job output';
+      return this._('delayed-job.output.fault') || 'fault output';
+    },
     icon: 'delayed-job.svg',
     paletteLabel: 'delayed job',
     label: function () {
@@ -18,6 +27,21 @@
     },
     labelStyle: function () {
       return this.name ? 'node_label_italic' : '';
+    },
+    oneditprepare: function () {
+      var completionMode = $('#node-input-completionMode');
+      var ackSection = $('.ack-mode-options');
+
+      function toggleAckFields() {
+        if (completionMode.val() === 'ack') {
+          ackSection.show();
+        } else {
+          ackSection.hide();
+        }
+      }
+
+      completionMode.on('change', toggleAckFields);
+      toggleAckFields();
     },
   });
 </script>
@@ -44,5 +68,31 @@
       <option value="m" data-i18n="delayed-job.interval.minutes"></option>
       <option value="h" data-i18n="delayed-job.interval.hours"></option>
     </select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-completionMode"><i class="fa fa-check-circle"></i> <span data-i18n="delayed-job.label.completionMode"></span></label>
+    <select id="node-input-completionMode" style="width: 180px">
+      <option value="auto" data-i18n="delayed-job.completionMode.auto"></option>
+      <option value="ack" data-i18n="delayed-job.completionMode.ack"></option>
+    </select>
+  </div>
+  <div class="ack-mode-options">
+    <div class="form-row">
+      <label for="node-input-ackTimeoutValue"><i class="fa fa-hourglass-half"></i> <span data-i18n="delayed-job.label.ackTimeout"></span></label>
+      <input type="number" id="node-input-ackTimeoutValue" min="1" placeholder="30" style="width: 100px">
+      <select id="node-input-ackTimeoutUnit" style="width: 80px">
+        <option value="s" data-i18n="delayed-job.interval.seconds"></option>
+        <option value="m" data-i18n="delayed-job.interval.minutes"></option>
+        <option value="h" data-i18n="delayed-job.interval.hours"></option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label for="node-input-ackMaxRetries"><i class="fa fa-repeat"></i> <span data-i18n="delayed-job.label.ackMaxRetries"></span></label>
+      <input type="number" id="node-input-ackMaxRetries" min="0" max="100" placeholder="3">
+    </div>
+  </div>
+  <div class="form-row">
+    <label for="node-input-verbose"><i class="fa fa-bug"></i> <span data-i18n="delayed-job.label.verbose"></span></label>
+    <input type="checkbox" id="node-input-verbose" style="width: auto; margin-left: 5px;">
   </div>
 </script>

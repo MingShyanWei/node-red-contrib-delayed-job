@@ -1,0 +1,17 @@
+<script type="text/html" data-help-name="job-fault">
+  <p>向在 ACK 模式下運行的 delayed-job 節點回傳<b>故障失敗</b>。</p>
+
+  <h3>輸入</h3>
+  <p>來自 delayed-job 節點輸出的訊息（必須包含 <code>msg._jobId</code> 和 <code>msg._jobSourceNode</code>）。</p>
+
+  <h3>詳細說明</h3>
+  <p>此節點直接與來源 delayed-job 節點溝通，不需要拉線回 delayed-job 的輸入。</p>
+  <pre>delayed-job (輸出 1) → [你的處理] → job-fault</pre>
+  <p>當 job-fault 節點收到訊息時，會立即將工作標記為失敗，並送到 delayed-job 節點的故障輸出（輸出 2）。</p>
+
+  <h3>錯誤訊息</h3>
+  <p>你可以在節點設定中配置預設錯誤訊息。也可以動態設定 <code>msg._jobError</code> 來覆蓋預設錯誤訊息。</p>
+
+  <h3>相關</h3>
+  <p>使用 <b>job-complete</b> 節點來確認工作完成。</p>
+</script>

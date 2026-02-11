@@ -1,0 +1,14 @@
+<script type="text/html" data-help-name="job-complete">
+  <p>向在 ACK 模式下運行的 delayed-job 節點回傳<b>完成確認</b>。</p>
+
+  <h3>輸入</h3>
+  <p>來自 delayed-job 節點輸出的訊息（必須包含 <code>msg._jobId</code> 和 <code>msg._jobSourceNode</code>）。</p>
+
+  <h3>詳細說明</h3>
+  <p>此節點直接與來源 delayed-job 節點溝通，不需要拉線回 delayed-job 的輸入。</p>
+  <pre>delayed-job (輸出 1) → [你的處理] → job-complete</pre>
+  <p>當 job-complete 節點收到訊息時，會將工作標記為成功完成，並取消所有等待中的重試計時器。</p>
+
+  <h3>相關</h3>
+  <p>使用 <b>job-fault</b> 節點來明確標記工作失敗。</p>
+</script>

@@ -10,10 +10,40 @@
     <li><code>msg.ttl</code> - 存活時間（秒）。若工作在此時間內未被處理，將被丟棄。預設：7 天（604800 秒）</li>
     <li><code>msg.keepAfter</code> - 工作完成後在 Redis 中保留的秒數。預設：7 天（604800 秒）</li>
   </ul>
+  <p>在<b>需要 ACK</b> 模式下，輸入也接受確認訊息：</p>
+  <ul>
+    <li><code>msg._jobId</code> - 要確認的工作 ID（來自輸出訊息）</li>
+    <li><code>msg._jobAck</code> - 設為 <code>true</code> 標記完成，<code>false</code> 標記失敗</li>
+    <li><code>msg._jobError</code> -（選填）當 <code>_jobAck</code> 為 <code>false</code> 時的錯誤原因</li>
+  </ul>
 
   <h3>輸出</h3>
-  <p>當工作被 worker 取出處理時，反序列化後的訊息會從輸出端送出。
-     Node-RED 會指派新的 <code>_msgid</code>。</p>
+  <ul>
+    <li><b>輸出 1</b> - 當工作被 worker 取出處理時，反序列化後的訊息會從此輸出送出。
+       Node-RED 會指派新的 <code>_msgid</code>。
+       在 ACK 模式下，<code>msg._jobId</code> 和 <code>msg._jobAttempt</code> 會一起送出。</li>
+    <li><b>輸出 2</b> - 故障輸出。在需要 ACK 模式下，重試次數用完的工作會從此輸出送出，
+       帶有 <code>msg._jobFailed = true</code> 和 <code>msg._jobError</code>。</li>
+  </ul>
+
+  <h3>完成模式</h3>
+  <p>此節點支援兩種完成模式：</p>
+  <ul>
+    <li><b>自動完成</b>（預設）：工作在訊息送到輸出後自動標記為完成。這是標準行為。</li>
+    <li><b>需要 ACK</b>：工作保持活動狀態，直到收到明確的確認回應。
+       若在設定的逾時時間內未收到 ACK，工作會自動重新執行。
+       重試次數用完後，工作會從輸出 2（故障輸出）送出。</li>
+  </ul>
+
+  <h3>需要 ACK 模式</h3>
+  <p>要確認工作完成，將輸出透過 function 節點接回輸入，設定：</p>
+  <pre>msg._jobAck = true;   // 或 false 標記失敗
+return msg;            // msg._jobId 已經設定好了</pre>
+  <p>設定項目：</p>
+  <ul>
+    <li><b>ACK 逾時</b> - 等待確認的時間，超過後自動重試（預設：30 秒）</li>
+    <li><b>最大重試次數</b> - 標記為故障前的重試次數（預設：3 次）</li>
+  </ul>
 
   <h3>詳細說明</h3>
   <p>此節點同時扮演生產者和消費者：</p>
@@ -27,7 +57,8 @@
 
   <h3>故障恢復</h3>
   <p>工作持久化儲存在 Redis 中。如果 Node-RED 當機，工作會留在佇列中，
-     當任何實體重新啟動時會被取出處理。</p>
+     當任何實體重新啟動時會被取出處理。在 ACK 模式下，鎖定過期的待處理工作
+     會被過期工作偵測器自動重新執行。</p>
 
   <h3>限制</h3>
   <p>無法序列化的屬性（如 http-in 節點的 <code>msg.req</code> 和 <code>msg.res</code>）

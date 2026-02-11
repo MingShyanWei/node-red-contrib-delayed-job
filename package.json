@@ -12,7 +12,9 @@
     "version": ">=2.0.0",
     "nodes": {
       "delayed-job-redis": "delayed-job/delayed-job-redis.js",
-      "delayed-job": "delayed-job/delayed-job.js"
+      "delayed-job": "delayed-job/delayed-job.js",
+      "job-complete": "delayed-job/job-complete.js",
+      "job-fault": "delayed-job/job-fault.js"
     }
   },
   "dependencies": {

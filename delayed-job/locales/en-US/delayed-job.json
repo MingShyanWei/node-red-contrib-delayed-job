@@ -4,13 +4,25 @@
       "name": "Name",
       "redis": "Redis",
       "concurrency": "Concurrency",
-      "interval": "Interval"
+      "interval": "Interval",
+      "completionMode": "Completion",
+      "ackTimeout": "ACK Timeout",
+      "ackMaxRetries": "Max Retries",
+      "verbose": "Debug Log"
     },
     "interval": {
       "milliseconds": "ms",
       "seconds": "seconds",
       "minutes": "minutes",
       "hours": "hours"
+    },
+    "completionMode": {
+      "auto": "Auto Complete",
+      "ack": "ACK Required"
+    },
+    "output": {
+      "job": "job output",
+      "fault": "fault output"
     }
   }
 }

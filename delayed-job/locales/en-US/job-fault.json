@@ -1,0 +1,11 @@
+{
+  "job-fault": {
+    "label": {
+      "name": "Name",
+      "errorMessage": "Error Message"
+    },
+    "placeholder": {
+      "errorMessage": "Job failed"
+    }
+  }
+}

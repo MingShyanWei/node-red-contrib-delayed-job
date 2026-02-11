@@ -4,13 +4,25 @@
       "name": "名稱",
       "redis": "Redis",
       "concurrency": "同時處理數",
-      "interval": "間隔"
+      "interval": "間隔",
+      "completionMode": "完成模式",
+      "ackTimeout": "ACK 逾時",
+      "ackMaxRetries": "最大重試次數",
+      "verbose": "除錯日誌"
     },
     "interval": {
       "milliseconds": "毫秒",
       "seconds": "秒",
       "minutes": "分鐘",
       "hours": "小時"
+    },
+    "completionMode": {
+      "auto": "自動完成",
+      "ack": "需要 ACK"
+    },
+    "output": {
+      "job": "工作輸出",
+      "fault": "故障輸出"
     }
   }
 }

@@ -1,6 +1,8 @@
 const helper = require('node-red-node-test-helper');
 const delayedJobNode = require('../delayed-job/delayed-job.js');
 const redisConfigNode = require('../delayed-job/delayed-job-redis.js');
+const jobCompleteNode = require('../delayed-job/job-complete.js');
+const jobFaultNode = require('../delayed-job/job-fault.js');
 const { Queue } = require('bullmq');
 const { expect } = require('chai');
 
@@ -14,7 +16,7 @@ describe('delayed-job Node', function () {
   const redisHost = process.env.REDIS_HOST || '127.0.0.1';
   const redisPort = parseInt(process.env.REDIS_PORT, 10) || 6379;
 
-  function baseFlow(queueName) {
+  function baseFlow(queueName, extraConfig) {
     return [
       {
         id: 'rc1',
@@ -25,15 +27,19 @@ describe('delayed-job Node', function () {
         tls: false,
         queueName: queueName,
       },
-      {
-        id: 'n1',
-        type: 'delayed-job',
-        name: 'test-job',
-        redis: 'rc1',
-        concurrency: 1,
-        wires: [['out1']],
-      },
+      Object.assign(
+        {
+          id: 'n1',
+          type: 'delayed-job',
+          name: 'test-job',
+          redis: 'rc1',
+          concurrency: 1,
+          wires: [['out1'], ['fault1']],
+        },
+        extraConfig || {}
+      ),
       { id: 'out1', type: 'helper' },
+      { id: 'fault1', type: 'helper' },
     ];
   }
 
@@ -46,11 +52,17 @@ describe('delayed-job Node', function () {
     await q.close();
   }
 
-  it('should load both nodes', function (done) {
+  it('should load all nodes', function (done) {
     const flow = baseFlow('load-test');
-    helper.load([redisConfigNode, delayedJobNode], flow, function () {
+    flow.push({ id: 'comp1', type: 'job-complete', name: 'test-complete', wires: [] });
+    flow.push({ id: 'fault1b', type: 'job-fault', name: 'test-fault', errorMessage: 'fail', wires: [] });
+    helper.load([redisConfigNode, delayedJobNode, jobCompleteNode, jobFaultNode], flow, function () {
       const n1 = helper.getNode('n1');
       expect(n1).to.have.property('name', 'test-job');
+      const comp1 = helper.getNode('comp1');
+      expect(comp1).to.have.property('name', 'test-complete');
+      const fault1b = helper.getNode('fault1b');
+      expect(fault1b).to.have.property('name', 'test-fault');
       done();
     });
   });

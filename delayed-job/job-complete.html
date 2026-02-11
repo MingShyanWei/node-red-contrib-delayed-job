@@ -1,0 +1,26 @@
+<script type="text/javascript">
+  RED.nodes.registerType('job-complete', {
+    category: 'function',
+    color: '#8BC34A',
+    defaults: {
+      name: { value: '' },
+    },
+    inputs: 1,
+    outputs: 0,
+    icon: 'font-awesome/fa-check',
+    paletteLabel: 'job complete',
+    label: function () {
+      return this.name || 'job complete';
+    },
+    labelStyle: function () {
+      return this.name ? 'node_label_italic' : '';
+    },
+  });
+</script>
+
+<script type="text/html" data-template-name="job-complete">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="job-complete.label.name"></span></label>
+    <input type="text" id="node-input-name" data-i18n="[placeholder]job-complete.label.name">
+  </div>
+</script>

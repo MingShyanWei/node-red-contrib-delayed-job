@@ -1,0 +1,11 @@
+{
+  "job-fault": {
+    "label": {
+      "name": "名稱",
+      "errorMessage": "錯誤訊息"
+    },
+    "placeholder": {
+      "errorMessage": "工作失敗"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+<script type="text/html" data-help-name="job-complete">
+  <p>Marks a job as <b>completed</b> back to a delayed-job node running in ACK Required mode.</p>
+
+  <h3>Input</h3>
+  <p>A message from a delayed-job node's output (must contain <code>msg._jobId</code> and <code>msg._jobSourceNode</code>).</p>
+
+  <h3>Details</h3>
+  <p>This node communicates directly with the source delayed-job node. No wire back to the delayed-job input is needed.</p>
+  <pre>delayed-job (output 1) → [your processing] → job-complete</pre>
+  <p>When the job-complete node receives a message, it marks the job as successfully completed and cancels any pending retry timers.</p>
+
+  <h3>See Also</h3>
+  <p>Use the <b>job-fault</b> node to explicitly fail a job.</p>
+</script>
